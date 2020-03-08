@@ -143,7 +143,7 @@ int main()
     }
     fin.close();
 
-    fin.open("table_b.csv", std::ios::in);
+    /*fin.open("table_b.csv", std::ios::in);
     while (getline(fin, line,'\n')){
       std::stringstream s(line);
       while (getline(s, word,','))
@@ -152,7 +152,7 @@ int main()
         //std::cout<<"table_b: "<<Table_B[i]<<"\n";
         i++;
       }
-  }
+  }*/
 
 
     hash<<<3,1024>>>(Table_A, width, height_a);
