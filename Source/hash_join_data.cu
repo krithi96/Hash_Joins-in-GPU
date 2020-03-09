@@ -53,8 +53,7 @@ unsigned hash_function_2(unsigned key){
 
 
 __global__
-void join(int *Table_B,int *Table_C,int width, int height){
-  int temparray[3];
+void join(int *Table_B,int *Table_C,int width_c,int width,int height){
   int index = blockIdx.x * blockDim.x +threadIdx.x;
   unsigned long primkey = Table_B[index*width+0];
   unsigned long value = Table_B[index*width+1];
@@ -65,15 +64,10 @@ void join(int *Table_B,int *Table_C,int width, int height){
     if (getkey(entry = table[location_2])!= primkey){
         entry = make_entry(0,NOTFOUND);
     }
-  temparray[0]=getkey(entry);
-  temparray[1]=getkey(entry);
-  temparray[2]=value;
-  for(int i =0;i<3;i++){
-    printf("%d ",temparray[i]);
+  Table_C[index*width_c+0]=getkey(entry);
+  Table_C[index*width_c+1]=getvalue(entry);
+  Table_C[index*width_c+2] =value; 
   }
-  printf("\n");
-  __syncthreads();
-}
 
 __global__
 void hash(int *Table_A, int width, int height){
@@ -91,7 +85,7 @@ void hash(int *Table_A, int width, int height){
     entry = atomicExch(&table[location], entry);
     key = getkey(entry);
     if (key == 0) {
-      printf("threadIdx: %d, table: %llu \n",threadIdx.x,table[location]);
+      printf("threadIdx: %d, table: %llu \n",index,table[location]);
       return;}
     unsigned location1 = hash_function_1(key);
     unsigned location2 = hash_function_2(key);
@@ -114,6 +108,7 @@ int main()
     int *Table_C;
 
     int width = 2;
+    int width_c = 3;
     int height_a = 2500;
     int height_b = 1000000;
     int num1=1;
@@ -143,7 +138,7 @@ int main()
     }
     fin.close();
 
-    /*fin.open("table_b.csv", std::ios::in);
+    fin.open("table_b.csv", std::ios::in);
     while (getline(fin, line,'\n')){
       std::stringstream s(line);
       while (getline(s, word,','))
@@ -152,11 +147,18 @@ int main()
         //std::cout<<"table_b: "<<Table_B[i]<<"\n";
         i++;
       }
-  }*/
-
+  }
 
     hash<<<3,1024>>>(Table_A, width, height_a);
-    join<<<1,1>>>(Table_B,Table_C,width,height_b);
     cudaDeviceSynchronize();
+    join<<<1,1>>>(Table_B,Table_C,width_c,width,height_b);
+    cudaDeviceSynchronize();
+    for(int j=0;j<height_b;j++){
+      for(int k=0;k<width_c;k++){
+        std::cout<<Table_C[j*width+height]<<" ";
+      }
+      std::cout<<"\n";
+    }
+
     printf("exit ");
 }
