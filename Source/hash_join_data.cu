@@ -56,6 +56,7 @@ __global__
 void join(int *Table_B,int *Table_C,int width_c,int width,int height){
   int index = blockIdx.x * blockDim.x +threadIdx.x;
   unsigned long primkey = Table_B[index*width+0];
+   //printf("primkey : %lu \n",primkey);
   unsigned long value = Table_B[index*width+1];
   unsigned location_1 = hash_function_1(primkey);
   unsigned location_2 = hash_function_2(primkey);
@@ -64,28 +65,33 @@ void join(int *Table_B,int *Table_C,int width_c,int width,int height){
     if (getkey(entry = table[location_2])!= primkey){
         entry = make_entry(0,NOTFOUND);
     }
+ // printf("entry of primkey %lu:%llu \n",primkey,entry);
+  //printf("key from hash table of primkey %lu: %d\n",primkey,getkey(entry));
   Table_C[index*width_c+0]=getkey(entry);
   Table_C[index*width_c+1]=getvalue(entry);
-  Table_C[index*width_c+2] =value; 
+  //printf("key from hash table of primkey %lu: %d\n",primkey,getvalue(entry));
+  Table_C[index*width_c+2] = value;
+  //printf("value from hash table of primkey %lu: %d\n",primkey,value); 
+  for(int l =0 ;l<3 ;l++){
+    //printf("index : %d,Table: %d  ",index,Table_C[index*width_c+l]);
+  }
   }
 
 __global__
 void hash(int *Table_A, int width, int height){
-
+  
   int index = blockIdx.x * blockDim.x +threadIdx.x;
-  //int stride = blockDim.x * gridDim.x;
-
-   //printf("in the kernel with thread : %d",index);
     unsigned long key = Table_A[index*width+0];
-    unsigned long value = Table_A[index*width+1]; //C
+    unsigned long value = Table_A[index*width+1]; 
     unsigned long long entry = make_entry(key,value);
     //printf("entry: %d",entry);
     unsigned location = hash_function_1(key);
+    unsigned k = key;
     for (int its = 0; its<maxiterations; its++){
     entry = atomicExch(&table[location], entry);
     key = getkey(entry);
     if (key == 0) {
-      printf("threadIdx: %d, table: %llu \n",index,table[location]);
+      //printf("key: %lu table: %llu \n",k,table[location]);
       return;}
     unsigned location1 = hash_function_1(key);
     unsigned location2 = hash_function_2(key);
@@ -109,16 +115,16 @@ int main()
 
     int width = 2;
     int width_c = 3;
-    int height_a = 2500;
-    int height_b = 1000000;
+    int height_a =  2500 ;//2500;
+    int height_b =  1500000 ;//1500000;
     int num1=1;
     int num2 =101;
     int num3 = 201;
     int count =0;
 
-     cudaMallocManaged(&Table_A, width * height_a * sizeof(int));
-     cudaMallocManaged(&Table_B, width * height_b * sizeof(int));
-     cudaMallocManaged(&Table_C, width * height_b * sizeof(int));
+     cudaMallocManaged(&Table_A, width * height_a * sizeof(unsigned long));
+     cudaMallocManaged(&Table_B, width * height_b * sizeof(unsigned long));
+     cudaMallocManaged(&Table_C, width_c * height_b * sizeof(unsigned long));
       std::fstream fin;
       fin.open("table_a.csv", std::ios::in);
       std::string line, word;
@@ -137,28 +143,29 @@ int main()
       }
     }
     fin.close();
-
+    int k=0;
     fin.open("table_b.csv", std::ios::in);
     while (getline(fin, line,'\n')){
       std::stringstream s(line);
       while (getline(s, word,','))
       {
-        Table_B[i]=stoi(word);
-        //std::cout<<"table_b: "<<Table_B[i]<<"\n";
-        i++;
+        Table_B[k]=stoi(word);
+        //std::cout<<"table_b: "<<Table_B[k]<<"\n";
+        k++;
       }
   }
+  fin.close();
 
-    hash<<<3,1024>>>(Table_A, width, height_a);
-    cudaDeviceSynchronize();
-    join<<<1,1>>>(Table_B,Table_C,width_c,width,height_b);
-    cudaDeviceSynchronize();
-    for(int j=0;j<height_b;j++){
-      for(int k=0;k<width_c;k++){
-        std::cout<<Table_C[j*width+height]<<" ";
-      }
-      std::cout<<"\n";
-    }
 
+     hash<<<3,1024>>>(Table_A, width, height_a);
+     cudaDeviceSynchronize();
+     join<<<1465,1024>>>(Table_B,Table_C,width_c,width,height_b);
+     cudaDeviceSynchronize();
+    for(int i = 0;i<height_b;i++){
+      for(int l =0 ;l<width_c ;l++){
+      printf(" %d ",Table_C[i*width_c+l]);
+    } 
+    printf("\n");
+  }
     printf("exit ");
 }
