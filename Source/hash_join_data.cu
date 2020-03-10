@@ -24,7 +24,6 @@ unsigned long long make_entry(unsigned long key, unsigned long value){
   //printf("key : %d, value : %d",key , value);
   unsigned long long ans = (key<<32)+value;
   //printf ("ans : %d ", (int)ans>>32);
-  printf("\n");
   return ans;
 }
 
@@ -155,17 +154,16 @@ int main()
       }
   }
   fin.close();
-
-
+  
      hash<<<3,1024>>>(Table_A, width, height_a);
      cudaDeviceSynchronize();
      join<<<1465,1024>>>(Table_B,Table_C,width_c,width,height_b);
      cudaDeviceSynchronize();
-    for(int i = 0;i<height_b;i++){
+    /*for(int i = 0;i<height_b;i++){
       for(int l =0 ;l<width_c ;l++){
       printf(" %d ",Table_C[i*width_c+l]);
     } 
     printf("\n");
   }
-    printf("exit ");
+    printf("exit ");*/
 }
