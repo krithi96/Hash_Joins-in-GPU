@@ -1,0 +1,63 @@
+% Header
+\documentclass[12pt]{article}
+% Includes
+\usepackage{fullpage}
+\usepackage[pdftex]{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage{color}
+\usepackage{setspace}   %Allows double spacing with the \doublespacing command
+
+% Page formatting
+\parindent 0pt
+\parskip 2ex
+
+% Customization
+\newcommand{\e}{{\epsilon}}
+\newcommand{\F}{\mathbb {F}}
+\renewcommand{\S}{{\mathcal{S}}}
+\newcommand{\acomment}[1]{\textit{\color{red}#1}}
+% Customization of environments - specially formatted areas
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newenvironment{definition}{\\[2ex] {\bf Definition:} }{\\[1ex]}
+\newenvironment{note}{\\[2ex] {\bf Note:} }{\\[1ex]}
+
+
+\begin {document}
+
+% Very simple page title; use the "title" environment for fancier stuff
+\begin {center}
+{\large  Paper Summary} \\
+Your Name Here \\
+December 2014
+\end {center}
+
+\doublespacing
+
+Air travel is now estimated to be as much as 5\% of worldwide GHGE \cite{Lee09}.  
+For UC, it may be as much as 17\% \cite{reports},
+although different reporting methodologies on the different campuses currently lead to
+widely varying estimates.
+My research will develop Web and mobile tools to help UC travelers reduce the
+greenhouse gas emissions produced by their trips.
+
+Most carbon calculators use a rough rule of thumb for calculating $CO_2E$ (greenhouse gas
+effect equivalent to tons of $CO_2$ emitted). For instance, COTAP.org uses the formula:
+$$
+\frac {m  \times e  \times r}{2205}
+$$
+where $m$ is miles traveled, $e$ is an emissions factor in lbs of $CO_2$ per mile, set to $.631$ for short
+trips, $.731$ for medium-distance trips, and $.427$ for long trips, and finally $r = 1.9$ is a radiative forcing
+index intended to cover the effect of releasing greenhouse gasses high in the atmosphere rather than
+on the surface.
+But these calculations are very rough, and don't take into effect issues like the specific aircraft used,
+which can have a huge effect.
+
+% Including the bibliography
+\bibliographystyle{plain}
+%\nocite{*}
+\bibliography{myBibliography}
+
+\end{document}
